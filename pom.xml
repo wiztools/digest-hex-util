@@ -8,6 +8,11 @@
     <version>1.0-SNAPSHOT</version>
     <name>digest-hex-util</name>
     <url>http://wiztools.googlecode.com/</url>
+    <scm>
+        <connection>scm:svn:http://wiztools.googlecode.com/svn/digest-hex-util/trunk/</connection>
+        <developerConnection>scm:svn:https://wiztools.googlecode.com/svn/digest-hex-util/trunk/</developerConnection>
+        <url>http://code.google.com/p/wiztools/source/browse/</url>
+    </scm>
     <build>
         <plugins>
             <plugin>
