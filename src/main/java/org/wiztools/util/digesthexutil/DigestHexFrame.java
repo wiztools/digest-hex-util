@@ -70,6 +70,7 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
         jb_compute.setMnemonic('o');
         jb_copy.setMnemonic('c');
 
+        jb_compute.setToolTipText("Compute!");
         jb_copy.setToolTipText("Copy-2-Clipboard");
         jb_uppercase.setToolTipText("Uppercase");
         jb_lowercase.setToolTipText("Lowercase");
