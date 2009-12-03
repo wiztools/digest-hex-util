@@ -3,6 +3,7 @@ package org.wiztools.util.digesthexutil;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -33,12 +34,14 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
 
     private final DigestHexFrame me;
 
-    private JTextArea jta_in = new JTextArea(10, 20);
+    private JTextArea jta_in = new JTextArea(10, 35);
     private JTextField jtf_out = new JTextField(20);
     private JComboBox jcb_encoding = new JComboBox(Charset.availableCharsets().keySet().toArray());
     private JComboBox jcb_digest_algo = new JComboBox(DigestAlgorithm.ALL);
-    private JButton jb_generate = new JButton("        Generate        ");
-    private JButton jb_copy = new JButton("Copy-2-Clipboard");
+    private JButton jb_compute = new JButton("        Compute        ");
+    private JButton jb_copy = new JButton("<html>&copy;</html>");
+    private JButton jb_uppercase = new JButton("<html>&uarr;</html>");
+    private JButton jb_lowercase = new JButton("<html>&darr;</html>");
 
     public DigestHexFrame(final String title) {
         super(title);
@@ -62,11 +65,16 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
         jcb_encoding.setToolTipText("Text encoding to use");
         jcb_digest_algo.setSelectedItem(DigestAlgorithm.MD5);
         jcb_digest_algo.setToolTipText("Digest algorithm");
+        jtf_out.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
 
-        jb_generate.setMnemonic('G');
-        jb_copy.setMnemonic('C');
+        jb_compute.setMnemonic('o');
+        jb_copy.setMnemonic('c');
 
-        jb_generate.addActionListener(new ActionListener() {
+        jb_copy.setToolTipText("Copy-2-Clipboard");
+        jb_uppercase.setToolTipText("Uppercase");
+        jb_lowercase.setToolTipText("Lowercase");
+
+        jb_compute.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 final String text = jta_in.getText();
                 try{
@@ -76,6 +84,18 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
                 catch(UnsupportedEncodingException ex){
                     assert true: "Will never come here!";
                 }
+            }
+        });
+
+        jb_uppercase.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jtf_out.setText(jtf_out.getText().toUpperCase());
+            }
+        });
+
+        jb_lowercase.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                jtf_out.setText(jtf_out.getText().toLowerCase());
             }
         });
 
@@ -118,7 +138,9 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
 
             JPanel jp_temp = new JPanel();
             jp_temp.setLayout(new FlowLayout(FlowLayout.CENTER));
-            jp_temp.add(jb_generate);
+            jp_temp.add(jb_compute);
+            jp_temp.add(jb_uppercase);
+            jp_temp.add(jb_lowercase);
             jp_temp.add(jb_copy);
             jp.add(jp_temp, BorderLayout.NORTH);
 
