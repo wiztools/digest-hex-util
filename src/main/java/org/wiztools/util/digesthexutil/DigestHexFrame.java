@@ -13,6 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.zip.CRC32;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -34,10 +36,20 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
 
     private final DigestHexFrame me;
 
+    private static final String CRC32 = "CRC32";
+
     private JTextArea jta_in = new JTextArea(10, 35);
     private JTextField jtf_out = new JTextField(20);
     private JComboBox jcb_encoding = new JComboBox(Charset.availableCharsets().keySet().toArray());
-    private JComboBox jcb_digest_algo = new JComboBox(DigestAlgorithm.ALL);
+    private JComboBox jcb_digest_algo = null;
+    {
+        final String[] ALGO = new String[DigestAlgorithm.ALL.length + 1];
+        ALGO[0] = CRC32;
+        for(int i=0; i<DigestAlgorithm.ALL.length; i++){
+            ALGO[i+1] = DigestAlgorithm.ALL[i];
+        }
+        jcb_digest_algo = new JComboBox(ALGO);
+    }
     private JButton jb_compute = new JButton("        Compute        ");
     private JButton jb_copy = new JButton("<html>&copy;</html>");
     private JButton jb_uppercase = new JButton("<html>&uarr;</html>");
@@ -71,7 +83,7 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
         jb_copy.setMnemonic('c');
 
         jb_compute.setToolTipText("Compute!");
-        jb_copy.setToolTipText("Copy-2-Clipboard");
+        jb_copy.setToolTipText("Copy digest to clipboard");
         jb_uppercase.setToolTipText("Uppercase");
         jb_lowercase.setToolTipText("Lowercase");
 
@@ -80,7 +92,15 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
                 final String text = jta_in.getText();
                 try{
                     byte[] textBytes = text.getBytes((String)jcb_encoding.getSelectedItem());
-                    jtf_out.setText(DigestUtil.digest(textBytes, (String)jcb_digest_algo.getSelectedItem()));
+                    final String selectedAlgo = (String)jcb_digest_algo.getSelectedItem();
+                    if(selectedAlgo.equals(CRC32)){
+                        final CRC32 crc = new CRC32();
+                        crc.update(textBytes);
+                        jtf_out.setText(String.valueOf(crc.getValue()));
+                    }
+                    else{
+                        jtf_out.setText(DigestUtil.digest(textBytes, selectedAlgo));
+                    }
                 }
                 catch(UnsupportedEncodingException ex){
                     assert true: "Will never come here!";
