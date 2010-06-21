@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.zip.CRC32;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,7 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import org.wiztools.commons.CommonCharset;
+import org.wiztools.commons.Charsets;
 import org.wiztools.commons.DigestAlgorithm;
 import org.wiztools.commons.DigestUtil;
 
@@ -45,9 +44,7 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
     {
         final String[] ALGO = new String[DigestAlgorithm.ALL.length + 1];
         ALGO[0] = CRC32;
-        for(int i=0; i<DigestAlgorithm.ALL.length; i++){
-            ALGO[i+1] = DigestAlgorithm.ALL[i];
-        }
+        System.arraycopy(DigestAlgorithm.ALL, 0, ALGO, 1, DigestAlgorithm.ALL.length);
         jcb_digest_algo = new JComboBox(ALGO);
     }
     private JButton jb_compute = new JButton("        Compute        ");
@@ -73,7 +70,7 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
     private void init(){
         jtf_out.setEditable(false);
 
-        jcb_encoding.setSelectedItem(CommonCharset.UTF_8.name());
+        jcb_encoding.setSelectedItem(Charsets.UTF_8.name());
         jcb_encoding.setToolTipText("Text encoding to use");
         jcb_digest_algo.setSelectedItem(DigestAlgorithm.MD5);
         jcb_digest_algo.setToolTipText("Digest algorithm");
