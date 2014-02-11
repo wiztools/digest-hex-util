@@ -11,9 +11,14 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.zip.CRC32;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -22,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 import org.wiztools.commons.Charsets;
 import org.wiztools.commons.DigestAlgorithm;
@@ -37,24 +43,28 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
 
     private static final String CRC32 = "CRC32";
 
-    private JTextArea jta_in = new JTextArea(10, 35);
-    private JTextField jtf_out = new JTextField(20);
-    private JComboBox jcb_encoding = new JComboBox(Charset.availableCharsets().keySet().toArray());
-    private JComboBox jcb_digest_algo = null;
+    private final JTextArea jta_in = new JTextArea(10, 35);
+    private final JTextField jtf_out = new JTextField(20);
+    private final JComboBox jcb_encoding = new JComboBox(Charset.availableCharsets().keySet().toArray());
+    private final JComboBox jcb_digest_algo;
     {
         final String[] ALGO = new String[DigestAlgorithm.ALL.length + 1];
         ALGO[0] = CRC32;
         System.arraycopy(DigestAlgorithm.ALL, 0, ALGO, 1, DigestAlgorithm.ALL.length);
         jcb_digest_algo = new JComboBox(ALGO);
     }
-    private JButton jb_compute = new JButton("        Compute        ");
-    private JButton jb_copy = new JButton("<html>&copy;</html>");
-    private JButton jb_uppercase = new JButton("<html>&uarr;</html>");
-    private JButton jb_lowercase = new JButton("<html>&darr;</html>");
+    private final JButton jb_compute = new JButton("        Compute        ");
+    private final JButton jb_copy = new JButton("<html>&copy;</html>");
+    private final JButton jb_uppercase = new JButton("<html>&uarr;</html>");
+    private final JButton jb_lowercase = new JButton("<html>&darr;</html>");
+    
+    private static final String COMMIT_ACTION = "commit";
 
     public DigestHexFrame(final String title) {
         super(title);
 
+        this.getRootPane().setDefaultButton(jb_compute);
+        
         me = this;
 
         init();
@@ -68,6 +78,18 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
     }
 
     private void init(){
+        { // Map Cmd+Enter / Ctrl+Enter to compute:
+            InputMap im = jta_in.getInputMap();
+            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.META_DOWN_MASK),
+                    COMMIT_ACTION);
+            ActionMap am = jta_in.getActionMap();
+            am.put(COMMIT_ACTION, new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    computeAction();
+                }
+            });
+        }
+        
         jtf_out.setEditable(false);
 
         jcb_encoding.setSelectedItem(Charsets.UTF_8.name());
@@ -86,22 +108,7 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
 
         jb_compute.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final String text = jta_in.getText();
-                try{
-                    byte[] textBytes = text.getBytes((String)jcb_encoding.getSelectedItem());
-                    final String selectedAlgo = (String)jcb_digest_algo.getSelectedItem();
-                    if(selectedAlgo.equals(CRC32)){
-                        final CRC32 crc = new CRC32();
-                        crc.update(textBytes);
-                        jtf_out.setText(String.valueOf(crc.getValue()));
-                    }
-                    else{
-                        jtf_out.setText(DigestUtil.digest(textBytes, selectedAlgo));
-                    }
-                }
-                catch(UnsupportedEncodingException ex){
-                    assert true: "Will never come here!";
-                }
+                computeAction();
             }
         });
 
@@ -165,6 +172,25 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
             jp.add(jtf_out, BorderLayout.SOUTH);
 
             c.add(jp, BorderLayout.SOUTH);
+        }
+    }
+    
+    private void computeAction() {
+        final String text = jta_in.getText();
+        try{
+            byte[] textBytes = text.getBytes((String)jcb_encoding.getSelectedItem());
+            final String selectedAlgo = (String)jcb_digest_algo.getSelectedItem();
+            if(selectedAlgo.equals(CRC32)){
+                final CRC32 crc = new CRC32();
+                crc.update(textBytes);
+                jtf_out.setText(String.valueOf(crc.getValue()));
+            }
+            else{
+                jtf_out.setText(DigestUtil.digest(textBytes, selectedAlgo));
+            }
+        }
+        catch(UnsupportedEncodingException ex){
+            assert true: "Will never come here!";
         }
     }
 
