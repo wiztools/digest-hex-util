@@ -45,13 +45,13 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
 
     private final JTextArea jta_in = new JTextArea(10, 35);
     private final JTextField jtf_out = new JTextField(20);
-    private final JComboBox jcb_encoding = new JComboBox(Charset.availableCharsets().keySet().toArray());
-    private final JComboBox jcb_digest_algo;
+    private final JComboBox<String> jcb_encoding = new JComboBox<String>(Charset.availableCharsets().keySet().toArray(new String[]{}));
+    private final JComboBox<String> jcb_digest_algo;
     {
         final String[] ALGO = new String[DigestAlgorithm.ALL.length + 1];
         ALGO[0] = CRC32;
         System.arraycopy(DigestAlgorithm.ALL, 0, ALGO, 1, DigestAlgorithm.ALL.length);
-        jcb_digest_algo = new JComboBox(ALGO);
+        jcb_digest_algo = new JComboBox<String>(ALGO);
     }
     private final JButton jb_compute = new JButton("        Compute        ");
     private final JButton jb_copy = new JButton("<html>&copy;</html>");
@@ -80,7 +80,8 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
     private void init(){
         { // Map Cmd+Enter / Ctrl+Enter to compute:
             InputMap im = jta_in.getInputMap();
-            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.META_DOWN_MASK),
+            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
+                        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
                     COMMIT_ACTION);
             ActionMap am = jta_in.getActionMap();
             am.put(COMMIT_ACTION, new AbstractAction() {
