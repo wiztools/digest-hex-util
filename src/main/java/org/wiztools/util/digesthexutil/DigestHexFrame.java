@@ -11,7 +11,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -85,6 +84,7 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
                     COMMIT_ACTION);
             ActionMap am = jta_in.getActionMap();
             am.put(COMMIT_ACTION, new AbstractAction() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     computeAction();
                 }
@@ -108,24 +108,28 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
         jb_lowercase.setToolTipText("Lowercase");
 
         jb_compute.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 computeAction();
             }
         });
 
         jb_uppercase.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 jtf_out.setText(jtf_out.getText().toUpperCase());
             }
         });
 
         jb_lowercase.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 jtf_out.setText(jtf_out.getText().toLowerCase());
             }
         });
 
         jb_copy.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final String digest = jtf_out.getText();
                 if(digest.trim().equals("")){
@@ -195,6 +199,7 @@ public class DigestHexFrame extends JFrame implements ClipboardOwner {
         }
     }
 
+    @Override
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
         // Do nothing!
     }
